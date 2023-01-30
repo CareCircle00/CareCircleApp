@@ -1,0 +1,40 @@
+{
+    "list" : [
+        {
+            "name":"Call Me",
+            "logo":"",
+            "default_select":true
+        
+        },
+        {
+            "name":"I need medicine",
+            "logo":"",
+            "default_select":true
+        },
+        {
+            "name":"I need groceries",
+            "logo":"",
+            "default_select":true
+        },
+        {
+            "name":"Mood Detector",
+            "logo":"",
+            "default_select":true
+        },
+        {
+            "name":"Need help ASAP",
+            "logo":"",
+            "default_select":false
+        },
+        {
+            "name":"Need to walk the dog",
+            "logo":"",
+            "default_select":false
+        },
+        {
+            "name":"Need help fixing something",
+            "logo":"",
+            "default_select":false
+        }
+    ]
+}

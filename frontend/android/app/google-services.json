@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "980384004488",
+    "project_id": "care-circle-5bd11",
+    "storage_bucket": "care-circle-5bd11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980384004488:android:7a887a0311cb8bf96ea23d",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "980384004488-l6oj4ggf9uuaq010nfkrchrm80m2k99a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.frontend",
+            "certificate_hash": "b9310805d754ccbed5b0ad491f3666a462248886"
+          }
+        },
+        {
+          "client_id": "980384004488-l1190ia7oc8js3uk8a5bq0aiseho1lam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrvURoXbzJOxqG52nx5CUjb0L3Np-Zabo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "980384004488-l1190ia7oc8js3uk8a5bq0aiseho1lam.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
