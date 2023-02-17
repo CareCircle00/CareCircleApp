@@ -9,7 +9,7 @@ exports.createCircle = functions.https.onCall(async(data,context)=>{
         createdBy:createdBy,
         lovedOne:{lovedOneuid:'',lovedOnephNo:lovedOne,invitationStatus:'Pending'},
         members: [{memberID:createdBy,memberNumber: phNo,status:'Accepted'}],
-        setUpComplete: false,
+        setUpComplete: true,
     }).then((c)=>{
         return {message:'Circle Created', id:c};
     }).catch((err)=>{

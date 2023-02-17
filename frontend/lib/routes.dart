@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 
-import 'screens/login.dart' as login_screen;
-import 'screens/code.dart' as code_screen;
-import 'screens/add_loved_one.dart' as add_loved_one_screen;
-import 'screens/splash.dart' as splash_screen;
-import 'screens/contact_book.dart' as contact_book_screen;
-import 'screens/select_action.dart' as select_action_screen;
-import 'screens/home/home.dart' as home_screen;
-import 'screens/home2/home_loved_one.dart' as home_loved_one_screen;
-import 'screens/video.dart' as video_screen;
+import './screens/setup/login.dart' as login_screen;
+import 'screens/setup/code.dart' as code_screen;
+import 'screens/setup/add_loved_one.dart' as add_loved_one_screen;
+import './screens/setup/splash.dart' as splash_screen;
+import './screens/setup/contact_book.dart' as contact_book_screen;
+import './screens/setup/select_action.dart' as select_action_screen;
+import 'screens/care_giver/home.dart' as home_screen;
+import 'screens/loved_one/home_loved_one.dart' as home_loved_one_screen;
+import './screens/setup/video.dart' as video_screen;
+import 'screens/care_giver/invitation_screen.dart' as invitation_status_screen;
+import './screens/setup/setup.dart' as setup_screen;
 
 var routes = <String,WidgetBuilder>{
   '/splash_screen': (context)=> const splash_screen.SplashScreen(),
@@ -20,4 +22,6 @@ var routes = <String,WidgetBuilder>{
   '/home_screen':(context) => const home_screen.HomeScreen(),
   '/home_screen_loved_one': (context) => const home_loved_one_screen.HomeScreen(),
   '/video_screen':(context)=>const video_screen.Video(),
+  '/invitation_screen': (context)=>const invitation_status_screen.Status(),
+  '/setup_screen': (context)=>const setup_screen.Setup(),
 };

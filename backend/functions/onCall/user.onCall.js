@@ -147,6 +147,15 @@ exports.updateAcceptance = functions.https.onCall(async(data,context)=>{
         throw new functions.https.HttpsError(`internal','Internal server error:${err}`);    
     })
 })
+
+exports.getUserInfo = functions.https.onCall(async(data,context)=>{
+    let uid = context.auth.uid;
+    return Users.doc(uid).get().then((doc)=>{
+        return {message:'User found',circle: doc.data()['circle']}
+    }).catch((err)=>{
+        throw new functions.https.HttpsError(`internal','Internal server error:${err}`);    
+    })
+})
 ///////////////////////////////////////////////////////////////////
 // exports.addMemberToCircle = functions.https.onCall(async(data,context)=>{    
 //     let uid = context.auth.uid;

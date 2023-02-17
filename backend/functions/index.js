@@ -19,3 +19,4 @@ exports.role = require('./onCall/role.onCall');
 exports.setUp = require('./onCall/setUp.onCall');
 exports.user = require('./onCall/user.onCall');
 exports.circle = require('./onCall/circle.onCall');
+exports.activity = require('./onCall/activity.onCall');
