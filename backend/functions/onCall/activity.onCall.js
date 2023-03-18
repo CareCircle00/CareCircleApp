@@ -32,6 +32,15 @@ exports.addActivity = functions.https.onCall(async(data,context)=>{
     })
 })
 
+exports.delActivity = functions.https.onCall(async(data,context)=>{
+    let cid = data.cid;
+    return await Activity.doc(cid).delete().then(()=>{
+        return {message: 'Activity Deleted'}
+    }).catch(err=>{
+        throw new functions.https.HttpsError(`internal','Internal server error:${err}`); 
+    })
+})
+
 // exports.addActivity = functions.https.onCall(async(data,context)=>{
 //     let cid = data.cid;
 //     let uid = context.auth.uid;

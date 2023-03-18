@@ -16,6 +16,15 @@ bool? check;
 
 int pg = 0;
 
+int checkCircle2(){
+  if(global.cid == ''){
+    return 2;
+  }
+  else{
+    return 1;
+  }
+}
+
 Future<void> createActivities(cid) async{
   HttpsCallable updateAct = FirebaseFunctions.instance.httpsCallable('activity-createActivityDoc');
   await updateAct.call(<String,dynamic>{
@@ -39,7 +48,7 @@ Future<void> updateCircle(cid)async{
 }
 
 void sending_SMS(String msg, List<String> list_receipents) async {
-  String send_result = await sendSMS(message: msg, recipients: list_receipents)
+  String send_result = await sendSMS(message: msg, recipients: list_receipents, sendDirect: true)
       .catchError((err) {
     print(err);
   });
@@ -100,7 +109,7 @@ class _HeadingState extends State<Heading> {
     HttpsCallable createCircle = FirebaseFunctions.instance.httpsCallable('circle-createCircle');
     final response = await createCircle.call(<String,dynamic>{
       'createdBy': user!.uid,
-      'phNo': user!.phoneNumber,
+      'phNo': user.phoneNumber,
       'lovedOne': phno,
     }).then((resp)=>{
       print(resp.data),
@@ -109,17 +118,19 @@ class _HeadingState extends State<Heading> {
   }
   static String phno = "";
   static List<String> phnos = [];
+  static String lovedOneName = '';
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    checkCircle().then((resp)=>{
-      if(mounted){
-        setState((){
-          pg = resp;
-        })
-      }
-    });
+    // checkCircle().then((resp)=>{
+    //   if(mounted){
+    //     setState((){
+    //       pg = resp;
+    //     })
+    //   }
+    // });
+    pg = checkCircle2();
   }
   @override
   Widget build(BuildContext context) {
@@ -181,11 +192,12 @@ class _HeadingState extends State<Heading> {
             alignment: const Alignment(0.9,0),
             child: TextButton(
               onPressed: (){
-                print(_HeadingState.phno);
+                // print(_HeadingState.phno);
                 if(_HeadingState.phno!=""){
                   createCircle(_HeadingState.phno).then((value){
+                    print('hello');
                     getCircle().then((val)=>{
-                      // print(val["circle"]),
+                      print(val["circle"]),
                       updateCircle(val["circle"]).then((rval)=>{
                         createActivities(val['circle']).then((resp)=>{
                           addActivity(val['circle'], 'Created Circle').then((resp2)=>{
@@ -217,28 +229,29 @@ class _HeadingState extends State<Heading> {
               alignment: const Alignment(0.9,0),
               child: TextButton(
                 onPressed: (){
-                  print(_HeadingState.phnos);
+                  // print(_HeadingState.phnos);
                   FirebaseAuth auth = FirebaseAuth.instance;
                   final user = auth.currentUser;
                   String phno = user!.phoneNumber!;
                   // sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', ['9148009365']);
                   sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', _HeadingState.phnos);
-                  HttpsCallable getCircleUID = FirebaseFunctions.instance.httpsCallable('circle-getCircleUID');
-                  getCircleUID.call(<String,dynamic>{
-                    'phno': phno,
-                  }).then((resp){
+                  // HttpsCallable getCircleUID = FirebaseFunctions.instance.httpsCallable('circle-getCircleUID');
+                  // getCircleUID.call(<String,dynamic>{
+                  //   'phno': phno,
+                  // }).then((resp){
                     HttpsCallable inviteMembers = FirebaseFunctions.instance.httpsCallable('circle-inviteMembers');
+                    print(_HeadingState.phnos);
                     inviteMembers.call(<String,dynamic>{
-                      'circleID': resp.data["cid"],
+                      'circleID': global.cid,
                       'members': _HeadingState.phnos,
                     }).then((response){
                       print(response.data);
-                      addActivity(resp.data["cid"], "Members invited");
+                      addActivity(global.cid, "Members invited");
                       Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false);
                       // Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false);
                     });
 
-                  });
+                  // });
                 },
                 child: const Text(
                   'Submit',
@@ -285,14 +298,18 @@ class _ContactList2State extends State<ContactList2> {
       _HeadingState.phno = searchController.text;
       filterContacts();
     });
-    checkCircle().then((val){
-      rlist = val;
-      if(mounted){
-        setState(() {
+    rlist = checkCircle2();
+    setState(() {
 
-        });
-      }
     });
+    // checkCircle().then((val){
+    //   rlist = val;
+    //   if(mounted){
+    //     setState(() {
+    //
+    //     });
+    //   }
+    // });
   }
 
   bool _isNumeric(String str) {
@@ -303,13 +320,13 @@ class _ContactList2State extends State<ContactList2> {
     // List<Contact> allContacts = [];
     List get_all_contacts = [];
     get_all_contacts.addAll(all_contacts);
-    print(get_all_contacts);
+    // print(get_all_contacts);
     if(searchController.text!= ''){
       if(_isNumeric(searchController.text)) {
         get_all_contacts.retainWhere((contact){
           String searchNumber = searchController.text;
           if(contact.phones.length>0){
-            if(contact.phones![0].contains(searchNumber)){
+            if(contact.phones![0].replaceAll(' ','').contains(searchNumber.replaceAll(' ',''))){
               return true;
             }
           }
@@ -506,7 +523,8 @@ class _ContactList2State extends State<ContactList2> {
                       onPressed: () {
                         if(contact.phones!.isNotEmpty){
                           _HeadingState.phno = contact.phones!.elementAt(0)!;
-                          // print(index);
+                          // _HeadingState.lovedOneName = contact.displayName;
+                          // _HeadingState.lovedOneName = contact.dis
                           num=index;
                           if(mounted){
                             setState((){

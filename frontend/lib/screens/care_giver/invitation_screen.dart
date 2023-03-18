@@ -49,7 +49,7 @@ class _StatusScreenState extends State<StatusScreen> {
     final width = MediaQuery.of(context).size.width;
     dynamic ret = circle_screen.CenterList.per;
     dynamic mem = circle_screen.CenterList.mem;
-    print(mem);
+    print(mem["timestamp"]);
     // print(circle_screen.all_contacts);
 
     late Future<Uint8List?> _imageFuture;
@@ -91,7 +91,7 @@ class _StatusScreenState extends State<StatusScreen> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  'Status',
+                  'My Circle',
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 20*width/360
@@ -104,34 +104,34 @@ class _StatusScreenState extends State<StatusScreen> {
         ret!=-1?FutureBuilder<Uint8List?>(
           future: _imageFuture,
           builder: (context, snapshot) => Container(
-            width: 90,
-            height: 90,
+            width: 90*width/360,
+            height: 90*width/360,
             child: snapshot.hasData
                 ?
             CircleAvatar(
               backgroundImage: MemoryImage(snapshot.data!),
-              radius:90,
+              radius:90*width/360,
             )
-            // Image.memory(snapshot.data!, gaplessPlayback: true)
                 :
             CircleAvatar(
-              radius: 90,
+              radius: 90*width/360,
               child: Text(
                 all_contacts[ret].displayName[0],
-                style: const TextStyle(
-                  fontSize: 30
+                style: TextStyle(
+                  fontSize: 30*width/360
                 ),
               ),
             ),
           ),
         ):CircleAvatar(
-        radius: 45,
-          child: Text(
-            mem["mapValue"]["fields"]["memberNumber"]["stringValue"][0],
-            style: const TextStyle(
-              fontSize: 30
-            ),
-          ),
+        radius: 45*width/360,
+        backgroundImage: AssetImage('assets/images/profile.png') as ImageProvider,
+          // child: Text(
+          //   mem["mapValue"]["fields"]["memberNumber"]["stringValue"][0],
+          //   style: const TextStyle(
+          //     fontSize: 30
+          //   ),
+          // ),
         ),
         Container(
           alignment: Alignment.center,
@@ -141,7 +141,7 @@ class _StatusScreenState extends State<StatusScreen> {
               children : [
                 ret==-1?
                 Text(
-                  mem["mapValue"]["fields"]["memberNumber"]["stringValue"],
+                  mem["memberNumber"],
                   style: TextStyle(
                     fontSize: 24*width/360,
                   )
@@ -152,16 +152,16 @@ class _StatusScreenState extends State<StatusScreen> {
                     fontSize: 24*width/360,
                   )
                 ),
-                mem['mapValue']['fields']['status']['stringValue'] == 'Accepted'?
+                mem['status'] == 'Accepted'?
                 Text(
-                  mem['mapValue']['fields']['status']['stringValue'],
+                  mem['status'],
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18*width/360,
                     )
                 )    :
                 Text(
-                    mem['mapValue']['fields']['status']['stringValue'],
+                    mem['status'],
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18*width/360,
@@ -170,7 +170,7 @@ class _StatusScreenState extends State<StatusScreen> {
               ]
           ),
         ),
-        mem['mapValue']['fields']['status']['stringValue'] == 'Pending'?
+        mem['status'] == 'Pending'?
         Container(
           margin: EdgeInsets.fromLTRB(0, 30*height/740, 0, 0),
           padding: EdgeInsets.fromLTRB(20*width/360, 0, 20*width/360, 0),
@@ -187,6 +187,17 @@ class _StatusScreenState extends State<StatusScreen> {
             child: const Text(
               'Resend Invite'
             )
+          ),
+        ):const SizedBox(),
+        mem['timestamp']!=null? Center(
+          child: Container(
+            margin: EdgeInsets.fromLTRB(0, 10*height/740, 0, 0),
+            child: Text(
+              'Accepted on ${mem['timestamp'].split(".").first}',
+              style: TextStyle(
+                fontSize: 18*width/360
+              ),
+            ),
           ),
         ):const SizedBox()
       ],

@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +6,7 @@ import './home_screen_loved_one.dart' as home_screen;
 import '../care_giver/circle_screen.dart' as circle_screen;
 import '../care_giver/coming_soon_screen.dart' as coming_soon_screen;
 import '../care_giver/chat_screen.dart' as chat_screen;
+import '../../global.dart' as global;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -32,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: pages.elementAt(_HomeScreenState.currentIndex),
       drawer : Drawer(
             child: ListView(
+              shrinkWrap: true,
               padding: EdgeInsets.fromLTRB(5*width/360,5*height/740,5*width/360,0*height/740),
               children: [
                 Container(
@@ -48,7 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Care Circle',
                           style: TextStyle(
                             fontSize: 20*width/360,
-                            color: Colors.grey,
+                            // color: Colors.grey,
+                            color: Colors.lightBlue,
                             fontWeight: FontWeight.w600,
                           )
                       )
@@ -84,8 +88,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.pop(context);
                   },
                 ),
+                ListTile(
+                  title: const Text('Delete Account',style: TextStyle(color: Colors.red),),
+                  onTap: (){
+                    setState(() {
+                      final auth = FirebaseAuth.instance;
+                      HttpsCallable delAct = FirebaseFunctions.instance.httpsCallable('activity-delActivity');
+                      HttpsCallable delCirc = FirebaseFunctions.instance.httpsCallable('circle-delCircle');
+                      HttpsCallable delUser = FirebaseFunctions.instance.httpsCallable('user-delUser');
+                      delAct.call(<String,dynamic>{
+                        'cid': global.cid
+                      }).then((resp)=>{
+                        delCirc.call(<String,dynamic>{
+                          'cid':global.cid
+                        }).then((resp2)=>{
+                          delUser.call().then((resp3)=>{
+                            auth.signOut().then((value){
+                              global.cid = '';
+                              Navigator.of(context).pushNamedAndRemoveUntil('/splash_screen', (Route<dynamic> route) => false);
+                            })
+                          })
+                        })
+                      });
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
               ],
-            )
+            ),
+
         )
       // bottomNavigationBar: BottomNavigationBar(
       //   type: BottomNavigationBarType.fixed,

@@ -11,6 +11,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/care_giver/chat_screen.dart';
 import 'package:fast_contacts/fast_contacts.dart';
 
+import '../../global.dart' as global;
+
 bool isLoading = true;
 bool isLoading2 = true;
 
@@ -45,7 +47,8 @@ int getPerson(dynamic contact) {
     //   temp = i;
     // }
     if(!element.phones.isEmpty){
-      if(element.phones[0] == contact["mapValue"]["fields"]["memberNumber"]["stringValue"]) {
+      // if(element.phones[0] == contact["mapValue"]["fields"]["memberNumber"]["stringValue"]) {
+      if(element.phones[0] == contact["memberNumber"]) {
         temp = i;
         break;
       }
@@ -71,6 +74,20 @@ Future<dynamic> getCircle() async{
   return rval;
 }
 
+Future<dynamic> getCircleFromCID() async{
+  dynamic rval = '';
+  FirebaseAuth auth = FirebaseAuth.instance;
+  final user = auth.currentUser;
+  String phno = user!.phoneNumber!;
+  HttpsCallable getCircle = FirebaseFunctions.instance.httpsCallable('circle-getCircle');
+  await getCircle.call(<String,dynamic>{
+    'circleID': global.cid,
+  }).then((response)=>{
+    rval = response.data,
+  });
+  return rval;
+}
+
 class AddLovedOne extends StatelessWidget {
   const AddLovedOne({Key? key}) : super(key: key);
   @override
@@ -81,77 +98,52 @@ class AddLovedOne extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
+          // Container(
+          //   margin: EdgeInsets.fromLTRB(0, height*5/740, 0, 0),
+          //   child: Stack(
+          //     alignment: Alignment.center,
+          //     children: [
+          //       Align(
+          //         alignment: Alignment.center,
+          //         child: Text(
+          //           'My Circle',
+          //           style: TextStyle(
+          //             fontWeight: FontWeight.w600,
+          //             color: const Color.fromRGBO(131,131,131,1),
+          //             fontSize: 18*width/360,
+          //           )
+          //         ),
+          //       ),
+          //       Align(
+          //           alignment: const Alignment(0.8,0),
+          //           child:TextButton(
+          //               onPressed: (){
+          //                 Navigator.pushNamed(context, '/contact_book_screen');
+          //               },
+          //               child: Text(
+          //                   'Invite',
+          //                   style: TextStyle(
+          //                     color: Colors.blueAccent,
+          //                     fontSize: 16*width/360,
+          //                     fontWeight: FontWeight.w500,
+          //                   )
+          //               )
+          //           )
+          //       ),
+          //     ],
+          //   ),
+          // ),
+
+
+
+
+          //to get back multiple views uncomment this
+          // Views(),
+
           Container(
-            // margin: EdgeInsets.fromLTRB(0, height*21/740, 0, 0),
-            margin: EdgeInsets.fromLTRB(0, height*5/740, 0, 0),
-            // decoration: const BoxDecoration(
-            //     border: Border(
-            //         bottom: BorderSide(
-            //           width: 1,
-            //           color: Colors.grey,
-            //         )
-            //     )
-            // ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'My Circle',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: const Color.fromRGBO(131,131,131,1),
-                      fontSize: 18*width/360,
-                    )
-                  ),
-                ),
-                // Align(
-                //   alignment: const Alignment(-0.8,0),
-                //   child:TextButton(
-                //     onPressed: (){
-                //
-                //       // HttpsCallable invite = FirebaseFunctions.instance.httpsCallable('user-addMemberToCircle');
-                //       // invite.call(<String,dynamic>{
-                //       //   // 'ph':-
-                //       // }).then((resp)=>{
-                //       //
-                //       // });
-                //       // FirebaseAuth.instance.signOut();
-                //       final auth = FirebaseAuth.instance;
-                //       auth.signOut();
-                //     },
-                //     child: Text(
-                //       // 'Manage',
-                //       'Signout',
-                //       style: TextStyle(
-                //         color: Colors.blueAccent,
-                //         fontSize: 16*width/360,
-                //         fontWeight: FontWeight.w500,
-                //       )
-                //     )
-                //   )
-                // ),
-                Align(
-                    alignment: const Alignment(0.8,0),
-                    child:TextButton(
-                        onPressed: (){
-                          Navigator.pushNamed(context, '/contact_book_screen');
-                        },
-                        child: Text(
-                            'Invite',
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontSize: 16*width/360,
-                              fontWeight: FontWeight.w500,
-                            )
-                        )
-                    )
-                ),
-              ],
-            ),
-          ),
-          Views(),
+            margin: EdgeInsets.fromLTRB(0, 20*height/740, 0, 20*height/740),
+            child: CenterList(),
+          )
 
           // const Bottom(),
         ],
@@ -182,7 +174,7 @@ class _ViewsState extends State<Views> {
       physics: const NeverScrollableScrollPhysics(),
       children: <Widget>[
         Container(
-          margin: EdgeInsets.fromLTRB(0, 0, 0.04*width, 0),
+          margin: EdgeInsets.fromLTRB(0, 20*height/740, 0.04*width, 0),
           child: Row(
               // mainAxisAlignment: MainAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -258,20 +250,33 @@ class _CenterListState extends State<CenterList> {
       });
     }
   }
+  final phno = FirebaseAuth.instance.currentUser!.phoneNumber.toString();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCircle().then((val)=>{
+    getCircleFromCID().then((resp)=>{
       getAllContacts(),
       if(mounted){
         setState(() {
-          mem = val["members"];
-          lovedOne = val['lovedOne']["mapValue"]["fields"];
-          loved_one_num = val['lovedOne']["mapValue"]["fields"]["lovedOnephNo"]["stringValue"];
+          mem = resp["circle"]["members"];
+          loved_one = resp["circle"]["lovedOne"];
+          loved_one_num = resp["circle"]["lovedOne"]["lovedOnephNo"];
           isLoading = false;
         }),
       }
+              // getCircle().then((val)=>{
+              // getAllContacts(),
+              // if(mounted){
+              // setState(() {
+              // print(val);
+              // // mem = val["members"];
+              // lovedOne = val['lovedOne']["mapValue"]["fields"];
+              // loved_one_num = val['lovedOne']["mapValue"]["fields"]["lovedOnephNo"]["stringValue"];
+              // isLoading = false;
+              // }),
+              // }
+              // }),
     });
   }
   @override
@@ -294,7 +299,7 @@ class _CenterListState extends State<CenterList> {
     }
     return SizedBox(
       // height: 578,
-      height: height*0.7,
+      height: height*0.9,
       width: MediaQuery.of(context).size.width,
       child: ListView(
         // shrinkWrap: true,
@@ -310,47 +315,52 @@ class _CenterListState extends State<CenterList> {
                 ),
               ),
             ),
-            child: Row(
+            child: Column(
               children: [
                 ind!=null&&ind!=-1?FutureBuilder<Uint8List?>(
                   future: _imageFutureLovedOne,
                   builder: (context, snapshot) => Container(
-                    width: 56,
-                    height: 56,
+                    width: 100*width/360,
+                    height: 100*width/360,
                     child: snapshot.hasData?
                     CircleAvatar(
                       backgroundImage: MemoryImage(snapshot.data!),
-                      radius:25,
+                      radius:50*width/360,
                     )
                     // ? Image.memory(snapshot.data!, gaplessPlayback: true)
                         :
                     CircleAvatar(
-                      radius: 25,
+                      radius: 50*width/360,
                       child: Text(
                         all_contacts[ind!].displayName[0],
                         style: TextStyle(
-                            fontSize: 18*width/360
+                            fontSize: 24*width/360
                         )
                       ),
                     ),
                   ),
 
-                ): SizedBox(),
-                // CircleAvatar(
-                //   child: Text(mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"][0]),
-                //   radius: 25,
-                // ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(width*10/360, 0, 0, 0),
+                ):  CircleAvatar(
+                    radius: 50*width/360,
+                    backgroundImage: AssetImage('assets/images/profile.png') as ImageProvider,
+                ),
+                ind!=null?Container(
+                  margin: EdgeInsets.fromLTRB(0, 10*height/740, 0, 10*height/740),
                   child:
                     ind==-1?
-                    const Text(
-                        'Loved One'
+                    Text(
+                        loved_one_num,
+                      style: TextStyle(
+                        fontSize: 20*width/360
+                      )
                     ):
                     Text(
                       all_contacts[ind!].displayName,
+                        style: TextStyle(
+                            fontSize: 20*width/360
+                        )
                     ),
-                )
+                ):const SizedBox()
               ]
             )
           ),
@@ -396,30 +406,31 @@ class _CenterListState extends State<CenterList> {
                                     FutureBuilder<Uint8List?>(
                                       future: _imageFuture,
                                       builder: (context, snapshot) => Container(
-                                        width: 56,
-                                        height: 56,
+                                        width: 50*width/360,
+                                        height: 50*width/360,
                                         child: snapshot.hasData
                                             ?
                                         CircleAvatar(
                                           backgroundImage: MemoryImage(snapshot.data!),
-                                          radius:25,
+                                          radius:25*width/360,
                                         )
                                         // Image.memory(snapshot.data!, gaplessPlayback: true)
                                             :
                                         CircleAvatar(
-                                          radius: 25,
+                                          radius: 25*width/360,
                                           child: Text(all_contacts[ret].displayName[0]),
                                         ),
                                       ),
                                     ):
                                     CircleAvatar(
-                                      radius: 25,
-                                      child: Text(
-                                        mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"][0],
-                                        style: TextStyle(
-                                          fontSize: 18*width/360
-                                        )
-                                      ),
+                                      radius: 25*width/360,
+                                      backgroundImage: AssetImage('assets/images/profile.png') as ImageProvider,
+                                      // child: Text(
+                                      //   phno == mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"]?'You':mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"][0],
+                                      //   style: TextStyle(
+                                      //     fontSize: 18*width/360
+                                      //   )
+                                      // ),
                                     ),
                                     Container(
                                       margin: EdgeInsets.fromLTRB(10*width/360, 0, 0, 0),
@@ -428,19 +439,21 @@ class _CenterListState extends State<CenterList> {
                                         children : [
                                           ret==-1?
                                           Text(
-                                            mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"],
+                                            phno == mem[index]["memberNumber"]? 'Myself' : mem[index]["memberNumber"]
+                                            // phno == mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"]? 'Myself':mem[index]["mapValue"]["fields"]["memberNumber"]["stringValue"],
                                           ):
                                           Text(
                                             all_contacts[ret].displayName,
                                           ),
-                                          mem[index]['mapValue']['fields']['status']['stringValue'] == 'Accepted'?const SizedBox():
+                                          mem[index]['status'] == 'Accepted'? const SizedBox():
+                                          // mem[index]['mapValue']['fields']['status']['stringValue'] == 'Accepted'?const SizedBox():
                                           Text(
-                                              mem[index]['mapValue']['fields']['status']['stringValue'],
-                                              style: const TextStyle(
-                                                fontSize: 10,
+                                            mem[index]['status'],
+                                              // mem[index]['mapValue']['fields']['status']['stringValue'],
+                                              style: TextStyle(
+                                                fontSize: 10*width/360,
                                               )
                                           ),
-
                                         ]
                                       ),
                                     ),

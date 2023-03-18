@@ -1,3 +1,4 @@
+const { firestore } = require('firebase-admin');
 const functions = require('firebase-functions');
 
 const {Actions,Circle} = require('../collections.js');
@@ -43,3 +44,20 @@ exports.postActions = functions.https.onCall(async (data,context)=>{
         throw new functions.https.HttpsError('internal',err)
     }
 });
+
+exports.getCircleActions = functions.https.onCall(async(data,context)=>{
+    let {cid} = data;
+    return Circle.doc(cid).get().then((d)=>{
+        // return {actions: d.data()["actions"], message: 'Circle actions found'}
+        return Actions.where(firestore.FieldPath.documentId(), 'in', d.data()['actions']).get().then((d1)=>{
+            let actions = [];
+            if(d1.docs.length == 0 ){return {message:'found this',  length: 0};}
+            d1.docs.forEach((element)=>{
+                actions.push(element);
+            })
+            return {message: 'found this', actions: actions};    
+        })
+    }).catch((err)=>{
+        throw new functions.https.HttpsError('internal',err)
+    })
+})

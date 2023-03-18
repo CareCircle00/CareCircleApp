@@ -330,7 +330,7 @@ class _ActionsState extends State<Actions> {
                 child: Container(
                   margin:EdgeInsets.fromLTRB(0, 20*height/740, 0, 20*height/740),
                   child: Text(
-                    'Submit',
+                    'Update',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 18*width/360,

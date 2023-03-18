@@ -30,6 +30,20 @@ exports.newUser = functions.https.onCall(async(data,context)=>{
 
 //////////////////////////////////////////////////////////////////
 
+exports.getUser = functions.https.onCall(async(user,context)=>{
+    let {uid} = data;
+    return Users.doc(uid).get().then(async (u)=>{
+        if(u.exists){
+            return {user: u.data(), message:'User exists!'}
+        }else{
+            return {message: 'User doesnot exist!'}
+        }
+    }).catch((err)=>{
+        throw new functions.https.HttpsError('internal','User detection failed')
+    })
+})
+
+
 exports.checkUser = functions.https.onCall(async(user,context)=>{
     let uid = context.auth.uid;
     return Users.doc(uid).get().then(async (u)=>{
@@ -135,11 +149,13 @@ exports.updateAcceptance = functions.https.onCall(async(data,context)=>{
     let uid = context.auth.uid;
     let phno = data.phno;
     let cid = data.cid;
+    let timestamp = data.timestamp;
     return Circle.doc(cid).update({
         members: firestore.FieldValue.arrayUnion({
             memberID: uid,
             memberNumber: phno,
-            status: 'Accepted'
+            status: 'Accepted',
+            timestamp: timestamp
         })
     }).then((rval)=>{
         return {message: 'Status Updated'}
@@ -156,6 +172,16 @@ exports.getUserInfo = functions.https.onCall(async(data,context)=>{
         throw new functions.https.HttpsError(`internal','Internal server error:${err}`);    
     })
 })
+
+exports.delUser = functions.https.onCall(async(data,context)=>{
+    let uid = context.auth.uid;
+    return Users.doc(uid).delete().then(()=>{
+        return {message: 'User Deleted'}
+    }).catch(err=>{
+        throw new functions.https.HttpsError(`internal','Internal server error:${err}`); 
+    })
+})
+
 ///////////////////////////////////////////////////////////////////
 // exports.addMemberToCircle = functions.https.onCall(async(data,context)=>{    
 //     let uid = context.auth.uid;

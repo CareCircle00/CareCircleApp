@@ -10,6 +10,7 @@ exports.createCircle = functions.https.onCall(async(data,context)=>{
         lovedOne:{lovedOneuid:'',lovedOnephNo:lovedOne,invitationStatus:'Pending'},
         members: [{memberID:createdBy,memberNumber: phNo,status:'Accepted'}],
         setUpComplete: true,
+        lastOnline: '',
     }).then((c)=>{
         return {message:'Circle Created', id:c};
     }).catch((err)=>{
@@ -51,8 +52,8 @@ exports.getCircleUnacceptedUID = functions.https.onCall(async(data,context)=>{
 
 exports.getCircle = functions.https.onCall(async(data,context)=>{
     let {circleID} = data;
-    await Circle.doc(circleID).get().then((doc)=>{
-        return {circle: doc};
+    return Circle.doc(circleID).get().then((d)=>{
+        return {circle: d.data()};
     }).catch((err)=>{
         throw new functions.https.HttpsError('internal',`Internal Server Error:${err}`);
     });
@@ -69,7 +70,7 @@ exports.getCircleMembers = functions.https.onCall(async(data,context)=>{
             circle.push(element);
         })
         // return {message:'found this', circle:circle[0].id,members:circle[0]._fieldsProto.members.arrayValue.values.mapValue, lovedOne:circle[0]._fieldsProto.lovedOne,length: doc.docs.length};
-        return {message:'found this', lovedOne : circle[0]._fieldsProto.lovedOne,circle:circle[0].id,members:circle[0]._fieldsProto.members.arrayValue.values, lovedOne:circle[0]._fieldsProto.lovedOne,length: doc.docs.length};
+        return {message:'found this', lastOnline: circle[0]._fieldsProto.lastOnline,lovedOne : circle[0]._fieldsProto.lovedOne,circle:circle[0].id,members:circle[0]._fieldsProto.members.arrayValue.values, lovedOne:circle[0]._fieldsProto.lovedOne,length: doc.docs.length};
     }).catch((err)=>{
         throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
     });
@@ -83,7 +84,7 @@ exports.inviteMembers = functions.https.onCall(async (data,context)=>{
             m.push({memberNumber:mem,status:'Pending'})
         })
         await Circle.doc(circleID).update({
-            members: admin.firestore.FieldValue.arrayUnion(...m),
+            members: admin.firestore.FieldValue.arrayUnion.apply(null,m),
             setUpComplete: true
         })
         return {message:'Members added',m}
@@ -140,19 +141,23 @@ exports.checkSetup = functions.https.onCall(async(data,context)=>{
 })
 
 exports.changeMood = functions.https.onCall(async(data,context)=>{
-    try{
-        let {mood,circleID} = data;
-        let c = await Circle.doc(circleID).update({mood:mood});
+    
+    let {mood,circleID,timestamp} = data;
+    let ref = Circle.doc(circleID).collection('mood');
+    return await ref.add({
+        mood: mood,
+        timestamp: timestamp,
+    }).then((c)=>{
         return {message:'Mood Updated'}
-    }catch(err){
-        throw new functions.https.HttpsError('internal',err)
-    }
+    }).catch((err)=>{
+        throw new functions.https.HttpsError(`internal Internal Server Error:${err}`);    
+    })
 })
 
 exports.getCurrentMood = functions.https.onCall(async(data,context)=>{
     let cid = data.cid;
-    return Circle.doc(cid).get().then((doc)=>{
-        return {mood: doc.data().mood}
+    return Circle.doc(cid).collection('mood').get().then((doc)=>{
+        return {mood: doc.data()}
     }).catch((err)=>{
         throw new functions.https.HttpsError('internal',err)
     })
@@ -204,4 +209,32 @@ exports.getCircleUIDFinal = functions.https.onCall(async(data,context)=>{
     else{
         return {c: c}
     }
+})
+
+exports.delCircle = functions.https.onCall(async(data,context)=>{
+    let cid = data.cid;
+    return Circle.doc(cid).delete().then(()=>{
+        return {message: 'Circle Deleted'}
+    }).catch(err=>{
+        throw new functions.https.HttpsError(`internal','Internal server error:${err}`); 
+    })
+})
+
+// exports.delCircUsers = functions.https.onCall(async(data,context)=>{
+//     let cid = data.cid;
+//     return Circle.doc(cid).get().then((resp)=>{
+        
+//     })
+// })
+
+exports.updateLastOnline = functions.https.onCall(async(data,context)=>{
+    let cid = data.cid;
+    let timestamp = data.timestamp;
+    return Circle.doc(cid).update({
+        lastOnline:timestamp
+    }).then((c)=>{
+        return {message: 'last online updated'}
+    }).catch((err)=>{
+        throw new functions.https.HttpsError('internal',err)
+    })
 })

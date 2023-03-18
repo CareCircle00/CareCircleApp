@@ -40,7 +40,7 @@ class _LoginState extends State<Login> {
       physics: const NeverScrollableScrollPhysics(),
       children: <Widget>[
         Container(
-          margin: EdgeInsets.fromLTRB(0, 50*height/740, 0, 30*height/740),
+          margin: EdgeInsets.fromLTRB(0, 30*height/740, 0, 30*height/740),
           alignment: Alignment.center,
           child:SvgPicture.asset(
             'assets/svgs/logo.svg',
@@ -51,7 +51,7 @@ class _LoginState extends State<Login> {
           ),
         ),
         Container(
-          margin: EdgeInsets.fromLTRB(0,0,0,90*height/740),
+          margin: EdgeInsets.fromLTRB(0,0,0,30*height/740),
           alignment: Alignment.center,
           child: Text(
             'Welcome to Care Circle',
@@ -240,9 +240,9 @@ class _SendCodeBTNState extends State<SendCodeBTN> {
           ),
         ),
         onPressed: clicked == true? null :()async {
-          setState(() {
-            clicked = true;
-          });
+          // setState(() {
+          //   clicked = true;
+          // });
           // print('${Login.countryCode} ${Login.phNo}');
           await FirebaseAuth.instance.verifyPhoneNumber(
             phoneNumber: '+${Login.countryCode} ${Login.phNo}',
@@ -250,10 +250,13 @@ class _SendCodeBTNState extends State<SendCodeBTN> {
             verificationFailed: (FirebaseAuthException e) {},
             codeSent: (String verificationId, int? resendToken) {
               Login.verify = verificationId;
+              Navigator.pushNamed(context, '/code_screen');
             },
             codeAutoRetrievalTimeout: (String verificationId) {},
-          );
-        Navigator.pushNamed(context, '/code_screen');
+          ).then((resp)=>{
+            // pushCodeScreen();
+            //   Navigator.pushNamed(context, '/code_screen'),
+          });
         },
         child: const Text('Send Code', style: TextStyle(fontSize: 20.0),),
       ),

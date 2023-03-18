@@ -8,11 +8,13 @@ import './coming_soon_screen.dart' as coming_soon_screen;
 import './chat_screen.dart' as chat_screen;
 import '../../global.dart' as global;
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
+
 
 Future<String> getUserInfo()async{
   String cid = '';
@@ -41,13 +43,42 @@ class _HomeScreenState extends State<HomeScreen> {
       // coming_soon_screen.ComingSoon(),
     ];
 
+    List titles = [
+      'Home',
+      'My Circle'
+    ];
+
+    void signout() async{
+      final auth = FirebaseAuth.instance;
+      await auth.signOut().then((value) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/splash_screen', (Route<dynamic> route) => false);
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Care Circle')
+        title: Text(titles[_HomeScreenState.currentIndex]),
+        actions: [
+          _HomeScreenState.currentIndex==1?
+              TextButton(
+                  onPressed: (){
+                    Navigator.pushNamed(context, '/contact_book_screen');
+                  },
+                  child: Text(
+                      'Invite',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16*width/360,
+                        fontWeight: FontWeight.w500,
+                      )
+                  )
+              ): SizedBox()
+        ],
       ),
       body: pages.elementAt(_HomeScreenState.currentIndex),
       drawer: Drawer(
         child: ListView(
+          physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(5*width/360,5*height/740,5*width/360,0*height/740),
           children: [
             Container(
@@ -64,7 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Care Circle',
                   style: TextStyle(
                     fontSize: 20*width/360,
-                    color: Colors.grey,
+                    // color: Colors.grey,
+                    color: Colors.lightBlue,
                     fontWeight: FontWeight.w600,
                   )
                 )
@@ -91,10 +123,32 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               title: const Text('Signout'),
               onTap: (){
+                setState((){
+                  signout();
+                });
+                // Navigator.pop(context);
+              },
+            ),ListTile(
+              title: const Text('Delete Account',style: TextStyle(color: Colors.red),),
+              onTap: (){
                 setState(() {
                   final auth = FirebaseAuth.instance;
-                  auth.signOut().then((value) => {
-                    Navigator.of(context).pushNamedAndRemoveUntil('/splash_screen', (Route<dynamic> route) => false)
+                  HttpsCallable delAct = FirebaseFunctions.instance.httpsCallable('activity-delActivity');
+                  HttpsCallable delCirc = FirebaseFunctions.instance.httpsCallable('circle-delCircle');
+                  HttpsCallable delUser = FirebaseFunctions.instance.httpsCallable('user-delUser');
+                  delAct.call(<String,dynamic>{
+                    'cid': global.cid
+                  }).then((resp)=>{
+                    delCirc.call(<String,dynamic>{
+                      'cid':global.cid
+                    }).then((resp2)=>{
+                      delUser.call().then((resp3)=>{
+                        auth.signOut().then((value){
+                          global.cid = '';
+                          Navigator.of(context).pushNamedAndRemoveUntil('/splash_screen', (Route<dynamic> route) => false);
+                        })
+                      })
+                    })
                   });
                 });
                 Navigator.pop(context);
@@ -103,39 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         )
       )
-      // bottomNavigationBar: BottomNavigationBar(
-      //   type: BottomNavigationBarType.fixed,
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home_filled),
-      //       label: 'Home',
-      //     ),
-      //     // BottomNavigationBarItem(
-      //     //   // icon: Icon(IconData(0xf3e1)),
-      //     //     icon:Icon(Icons.notifications_none_outlined),
-      //     //     label:'Alerts'
-      //     // ),
-      //     BottomNavigationBarItem(
-      //       // icon: Icon(Icons.cloud_circle_outlined),
-      //         icon: Icon(Icons.lightbulb_circle_outlined),
-      //         label:'My Circle'
-      //     ),
-      //     // BottomNavigationBarItem(
-      //     //     icon: Icon(Icons.chat_bubble_outline),
-      //     //     label:'Chats'
-      //     // ),
-      //     // BottomNavigationBarItem(
-      //     //     icon: Icon(Icons.settings),
-      //     //     label:'Settings'
-      //     // )
-      //   ],
-      //   currentIndex: _HomeScreenState.currentIndex,
-      //   onTap: (int index){
-      //     setState(() {
-      //       _HomeScreenState.currentIndex = index;
-      //     });
-      //   },
-      // )
     );
   }
 }

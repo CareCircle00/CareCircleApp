@@ -135,7 +135,7 @@ class _SetupState extends State<Setup> {
           Container(
             margin: EdgeInsets.fromLTRB(20*width/360, 10*height/740, 20*width/360, 0*height/740),
             child: Text(
-              "Let's setup your loved ones experience",
+              "Let's setup your loved one's experience",
               style: TextStyle(
                 fontSize: 18*width/360,
                 fontWeight: FontWeight.w600
@@ -152,28 +152,111 @@ class _SetupState extends State<Setup> {
             ),
           ),
           // const Head(),
-          list.length%2==0?ListView.builder(
+          list.length%2==0?SizedBox(
+            height: 0.65*height,
+            child: ListView.builder(
+                // shrinkWrap: true,
+                // physics: ScrollPhysics(),
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: list.length,
+                itemBuilder: (context,index){
+                  if(index%2!=0) {
+                    return const SizedBox();
+                  }else{
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10,10,10,10),
+                            height: height*140/740,
+                            child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  // backgroundColor: Colors.lightBlueAccent,
+
+                                  backgroundColor: Color.fromRGBO(159,160,161,1),
+                                  // backgroundColor: Colors.green,
+                                  // (230,243,246)
+                                  // backgroundColor: Color.fromRGBO(173, 200, 230, 1),
+                                ),
+                                child: Text(
+                                  list[index]["name"],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 18*width/360,
+                                    color: Colors.white
+                                  ),
+                                )
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(10*width/360,10*height/740,10*width/360,10*height/740),
+                            // padding: EdgeInsets.only(left: 8.0),
+                            height: 140*height/740,
+                            child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  // backgroundColor: Colors.lightBlueAccent,
+
+                                  backgroundColor: Color.fromRGBO(159,160,161,1),
+                                  // backgroundColor: Colors.green,
+                                  // (230,243,246)
+                                  // backgroundColor: Color.fromRGBO(173, 200, 230, 1),
+                                ),
+                                child:Text(
+                                  list[index+1]["name"],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 18*width/360,
+                                      color: Colors.white
+                                  ),
+                                )
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                }
+            ),
+          ):SizedBox(
+            height: 0.65*height,
+            child: ListView.builder(
+              // shrinkWrap: true,
+              // physics: ScrollPhysics(),
               shrinkWrap: true,
-              physics: ScrollPhysics(),
+              physics: ClampingScrollPhysics(),
+
               itemCount: list.length,
               itemBuilder: (context,index){
-                if(index%2!=0) {
+                if(index%2!=0 && index!= list.length-1) {
                   return const SizedBox();
-                }else{
+                }else if(index!= list.length-1){
                   return Row(
                     children: [
                       Expanded(
                         child: Container(
-                          margin: const EdgeInsets.fromLTRB(10,10,10,10),
-                          height: height*140/740,
+                          margin: EdgeInsets.fromLTRB(10*width/360,10*height/740,10*width/360,10*height/740),
+                          height: 140*height/740,
                           child: ElevatedButton(
                               onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                // backgroundColor: Colors.lightBlueAccent,
+
+                                backgroundColor: Color.fromRGBO(159,160,161,1),
+                                // backgroundColor: Colors.green,
+                                  // (230,243,246)
+                                // backgroundColor: Color.fromRGBO(173, 200, 230, 1),
+                              ),
                               child: Text(
                                 list[index]["name"],
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 18*width/360,
-                                  color: Colors.white
+                                    fontSize: 18*width/360,
+                                    color: Colors.white  // new white
                                 ),
                               )
                           ),
@@ -185,13 +268,24 @@ class _SetupState extends State<Setup> {
                           // padding: EdgeInsets.only(left: 8.0),
                           height: 140*height/740,
                           child: ElevatedButton(
-                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                // backgroundColor: Colors.pinkAccent,
+                                backgroundColor: Color.fromRGBO(159,160,161,1),
+
+                                // backgroundColor: Colors.lightBlueAccent,
+                              ),
+                              onPressed: () {
+                                // HttpsCallable checkSetup = FirebaseFunctions.instance.httpsCallable('circle-changeMood');
+                                // checkSetup.call(<String,dynamic>{
+                                //   'mood':3
+                                // });
+                              },
                               child:Text(
                                 list[index+1]["name"],
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 18*width/360,
-                                    color: Colors.white
+                                  fontSize: 18*width/360,
+                                  color: Colors.white,
                                 ),
                               )
                           ),
@@ -199,91 +293,31 @@ class _SetupState extends State<Setup> {
                       )
                     ],
                   );
-                }
-              }
-          ):ListView.builder(
-            shrinkWrap: true,
-            physics: ScrollPhysics(),
-            itemCount: list.length,
-            itemBuilder: (context,index){
-              if(index%2!=0 && index!= list.length-1) {
-                return const SizedBox();
-              }else if(index!= list.length-1){
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(10*width/360,10*height/740,10*width/360,10*height/740),
-                        height: 140*height/740,
-                        child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              // backgroundColor: Colors.lightBlueAccent,
-                              backgroundColor: Colors.lightBlue,
-                            ),
-                            child: Text(
-                              list[index]["name"],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 18*width/360,
-                                  color: Colors.white  // new white
-                              ),
-                            )
+                }else{
+                  return Container(
+                    margin: EdgeInsets.fromLTRB(10*width/360, 10*height/740, 10*width/360, 0*height/740),
+                    height: 140*height/740,
+                    child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          // backgroundColor: Colors.lightGreenAccent,
+                          // backgroundColor: Colors.lightBlue,
+                          backgroundColor: Color.fromRGBO(159,160,161,1),
+
                         ),
-                      ),
+                        child:Text(
+                          list[index]["name"],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 18*width/360,
+                              color: Colors.white
+                          ),
+                        )
                     ),
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(10*width/360,10*height/740,10*width/360,10*height/740),
-                        // padding: EdgeInsets.only(left: 8.0),
-                        height: 140*height/740,
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              // backgroundColor: Colors.pinkAccent,
-                              backgroundColor: Colors.lightBlue,
-                              // backgroundColor: Colors.lightBlueAccent,
-                            ),
-                            onPressed: () {
-                              // HttpsCallable checkSetup = FirebaseFunctions.instance.httpsCallable('circle-changeMood');
-                              // checkSetup.call(<String,dynamic>{
-                              //   'mood':3
-                              // });
-                            },
-                            child:Text(
-                              list[index+1]["name"],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18*width/360,
-                                color: Colors.white,
-                              ),
-                            )
-                        ),
-                      ),
-                    )
-                  ],
-                );
-              }else{
-                return Container(
-                  margin: EdgeInsets.fromLTRB(10*width/360, 10*height/740, 10*width/360, 0*height/740),
-                  height: 140*height/740,
-                  child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        // backgroundColor: Colors.lightGreenAccent,
-                        backgroundColor: Colors.lightBlue,
-                      ),
-                      child:Text(
-                        list[index]["name"],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18*width/360,
-                            color: Colors.white
-                        ),
-                      )
-                  ),
-                );
-              }
-            },
+                  );
+                }
+              },
+            ),
           ),
           Align(
             alignment: Alignment.centerRight,
@@ -302,7 +336,7 @@ class _SetupState extends State<Setup> {
           Align(
             alignment: Alignment.center,
             child: Container(
-              margin: EdgeInsets.fromLTRB(0,50*height/740,10*width/360,0),
+              margin: EdgeInsets.fromLTRB(0,10*height/740,10*width/360,0),
               child: ElevatedButton(
                 child: Text(
                   'Proceed to invite your Loved One',
