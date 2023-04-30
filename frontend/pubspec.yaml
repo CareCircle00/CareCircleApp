@@ -53,6 +53,12 @@ dependencies:
   azlistview: ^2.0.0
   flutter_phone_direct_caller: ^2.1.1
   timeago: ^3.4.0
+  page_transition: ^2.0.9
+  circular_menu: ^2.0.1
+  string_2_icon: ^0.0.2
+  flutter_bluetooth_serial: ^0.4.0
+  flutter_blue_plus: ^1.4.0
+  flutter_reactive_ble: ^5.0.3
 
 
   # The following adds the Cupertino Icons font to your application.

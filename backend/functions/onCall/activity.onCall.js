@@ -19,12 +19,14 @@ exports.addActivity = functions.https.onCall(async(data,context)=>{
     let uid = context.auth.uid;
     let activity = data.activity;
     let timestamp = data.timestamp;
+    let ph = data.ph;
     let listRef = db.collection('Activity').doc(cid).collection('List');
     return await listRef.add({
         uid: uid,
         activity: activity,
         cid: cid,
-        timestamp: timestamp
+        timestamp: timestamp,
+        ph:ph
     }).then((c)=>{
         return {message:'Activity added'}
     }).catch((err)=>{

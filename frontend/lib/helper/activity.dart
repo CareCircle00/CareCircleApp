@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 Future<bool> addActivity(String cid,String activity)async{
   final user = FirebaseAuth.instance.currentUser;
   final uid = user!.uid;
+  final ph = user.phoneNumber;
   bool rval = false;
   HttpsCallable addAct = FirebaseFunctions.instance.httpsCallable('activity-addActivity');
   await addAct.call(<String,dynamic>{
@@ -11,6 +12,7 @@ Future<bool> addActivity(String cid,String activity)async{
     'cid':cid,
     'activity':activity,
     'timestamp': DateTime.now().toString(),
+    'ph':ph
   }).then((resp)=>{
     rval = true,
   });

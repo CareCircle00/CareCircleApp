@@ -1,21 +1,17 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
-// import 'package:flutter_svg/svg.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:http/http.dart';
-// // import 'package:flutter_svg/svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../../helper/user.dart' as user_helper;
 import '../../global.dart' as global;
 
 import './login.dart' as login_screen;
 
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-// import '../urls.dart' as url;
+
+///////////////////// API CALLS /////////////////////////////
 
 Future<bool> checkSet(String cid)async{
   bool rval = false;
@@ -35,12 +31,11 @@ Future<String> checkUnacceptedMember()async{
   final ph = user.phoneNumber;
   HttpsCallable ch = FirebaseFunctions.instance.httpsCallable('user-checkUnacceptedMember');
   await ch.call(<String,dynamic>{
-    'phno':ph
+    'phNo':ph
   }).then((rval)=>{
     print('here: ${rval.data}'),
-    if(rval.data['circle']!=null){
-      print(rval.data["circle"]),
-      cid = rval.data['circle'],
+    if(rval.data['member']!=null){
+      cid = rval.data['member']['cid'],
     }
   });
   return cid;
@@ -51,8 +46,8 @@ Future<void> removeAcceptance(String cid)async{
   final ph = user.phoneNumber!;
   HttpsCallable upAcc = FirebaseFunctions.instance.httpsCallable('user-removeUnacceptedMember');
   upAcc.call(<String,dynamic>{
-    'cid':cid,
-    "phno":ph,
+    // 'cid':cid,
+    "phNo":ph,
   }).then((resp)=>{
     print(resp.data),
   });
@@ -126,6 +121,8 @@ Future<void> newUser()async{
     print(resp.data),
   });
 }
+
+//////////// API CALLS //////////////////
 
 class CodeScreen extends StatelessWidget {
   const CodeScreen({Key? key}) : super(key: key);
@@ -328,6 +325,7 @@ class _SubmitButtonState extends State<SubmitButton> {
                         if(rval == ''){
                           updateRole('m4PbOt884WWZwcAeR9OA').then((rval)=>{
                             checkUnacceptedMember().then((rval)=>{
+                              print('rvallll $rval'),
                               if(rval==''){
                                 Navigator.of(context).pushNamedAndRemoveUntil('/add_loved_one_screen', (Route<dynamic> route) => false),
                               }else{

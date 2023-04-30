@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
@@ -116,6 +115,19 @@ class _HeadingState extends State<Heading> {
     });
     // print(response.data);
   }
+  Future<void> createMembers(String circle)async{
+    final user = FirebaseAuth.instance.currentUser;
+    HttpsCallable createMem = FirebaseFunctions.instance.httpsCallable('circle-createMembers');
+    createMem.call(<String,dynamic>{
+      'cid': circle,
+      'createdBy': user!.uid,
+      'phNo': user.phoneNumber,
+      'timestamp': DateTime.now().toString(),
+      'invitedOn':DateTime.now().toString()
+    }).then((resp)=>{
+      print(resp.data)
+    });
+  }
   static String phno = "";
   static List<String> phnos = [];
   static String lovedOneName = '';
@@ -192,25 +204,24 @@ class _HeadingState extends State<Heading> {
             alignment: const Alignment(0.9,0),
             child: TextButton(
               onPressed: (){
-                // print(_HeadingState.phno);
                 if(_HeadingState.phno!=""){
                   createCircle(_HeadingState.phno).then((value){
-                    print('hello');
-                    getCircle().then((val)=>{
-                      print(val["circle"]),
-                      updateCircle(val["circle"]).then((rval)=>{
-                        createActivities(val['circle']).then((resp)=>{
-                          addActivity(val['circle'], 'Created Circle').then((resp2)=>{
-                            global.cid = val["circle"],
-                            postActions(val['circle']).then((resp3)=>{
-                              sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', [_HeadingState.phno]),
-                              Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false)
+                      getCircle().then((val)=>{
+                        createMembers(val['circle']).then((val2)=>{
+                          updateCircle(val["circle"]).then((rval)=>{
+                            createActivities(val['circle']).then((resp)=>{
+                              addActivity(val['circle'], 'Created Circle').then((resp2)=>{
+                                global.cid = val["circle"],
+                                  postActions(val['circle']).then((resp3)=>{
+                                    sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', [_HeadingState.phno]),
+                                    Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false)
+                                  })
+                                })
+                              })
                             })
                           })
-                        })
-                      })
-                    });
-                  });
+                        });
+                      });
                 }else{
 
                 }
@@ -244,10 +255,17 @@ class _HeadingState extends State<Heading> {
                     inviteMembers.call(<String,dynamic>{
                       'circleID': global.cid,
                       'members': _HeadingState.phnos,
+                      'invitedOn':DateTime.now().toString(),
                     }).then((response){
                       print(response.data);
                       addActivity(global.cid, "Members invited");
-                      Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false);
+                      HttpsCallable addUnaccepted = FirebaseFunctions.instance.httpsCallable('circle-addUnacceptedMember');
+                      addUnaccepted.call(<String,dynamic>{
+                        'phNos':_HeadingState.phnos,
+                        'cid':global.cid
+                      }).then((r)=>{
+                        Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false)
+                      });
                       // Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false);
                     });
 
@@ -403,7 +421,6 @@ class _ContactList2State extends State<ContactList2> {
                 dynamic contact = searching==true? filtered_contacts[index]:all_contacts[index];
 
                 late Future<Uint8List?> _imageFuture;
-                // _imageFuture = FastContacts.getContactImage(filtered_contacts[index].id);
                 _imageFuture = searching == true? FastContacts.getContactImage(filtered_contacts[index].id) : FastContacts.getContactImage(all_contacts[index].id);
                 if(contact.phones!.isNotEmpty){
                   return Container(
@@ -442,10 +459,14 @@ class _ContactList2State extends State<ContactList2> {
                           title: Text(
                               contact.displayName!,
                               style: TextStyle(
-                                fontSize: 18*width/360,      // idhar width kar
+                                fontSize: 18*width/360,
                                 fontWeight: FontWeight.w500,
                               )
                           ),
+
+
+
+                        //////////////////use Width here
                         leading: FutureBuilder<Uint8List?>(
                         future: _imageFuture,
                         builder: (context, snapshot) => Container(

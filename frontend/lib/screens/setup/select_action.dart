@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../setup/add_loved_one.dart' as a_l_l;
-
 import '../../global.dart' as global;
 
 class SelectActionScreen extends StatelessWidget {
@@ -312,20 +310,6 @@ class _ActionsState extends State<Actions> {
                   String phno = user!.phoneNumber!;
                   global.list = actionsTrue;
                   Navigator.of(context).pushNamedAndRemoveUntil('/add_loved_one_screen', (Route<dynamic> route) => false);
-                  // HttpsCallable getCircleUID = FirebaseFunctions.instance.httpsCallable('circle-getCircleUID');
-                  // getCircleUID.call(<String,dynamic>{
-                  //   'phno': phno,
-                  // }).then((resp){
-                  //   HttpsCallable postActions = FirebaseFunctions.instance.httpsCallable('actions-postActions');
-                  //   postActions.call(<String,dynamic>{
-                  //     'circleID': resp.data["cid"],
-                  //     'actions': actionsTrue,
-                  //   }).then((response){
-                  //     // Navigator.pushNamed(context,'/contact_book_screen');
-                  //     global.cid = resp.data['cid'];
-                  //     Navigator.of(context).pushNamedAndRemoveUntil('/home_screen', (Route<dynamic> route) => false);
-                  //   });
-                  // });
                 },
                 child: Container(
                   margin:EdgeInsets.fromLTRB(0, 20*height/740, 0, 20*height/740),
@@ -341,7 +325,6 @@ class _ActionsState extends State<Actions> {
             )
         ),
       ]
-
     );
   }
 }

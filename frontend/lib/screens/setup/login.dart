@@ -240,10 +240,6 @@ class _SendCodeBTNState extends State<SendCodeBTN> {
           ),
         ),
         onPressed: clicked == true? null :()async {
-          // setState(() {
-          //   clicked = true;
-          // });
-          // print('${Login.countryCode} ${Login.phNo}');
           await FirebaseAuth.instance.verifyPhoneNumber(
             phoneNumber: '+${Login.countryCode} ${Login.phNo}',
             verificationCompleted: (PhoneAuthCredential credential) {},

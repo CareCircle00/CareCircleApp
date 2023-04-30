@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const {Circle,Users} = require('../collections.js');
+const {Circle,Users,Unaccepted} = require('../collections.js');
 const { firebaseConfig } = require('firebase-functions');
 
 exports.createCircle = functions.https.onCall(async(data,context)=>{
@@ -18,6 +18,23 @@ exports.createCircle = functions.https.onCall(async(data,context)=>{
     })
 });
 
+exports.createMembers = functions.https.onCall(async(data,context)=>{
+    let {cid} = data;
+    let {createdBy,phNo,timestamp,invitedOn} = data;
+    return Circle.doc(cid).collection('Members').doc(phNo).create({
+        memberID:createdBy,
+        memberNumber:phNo,
+        status: 'Accepted',
+        timestamp:timestamp,
+        invitedOn:invitedOn,
+    }).then((c)=>{
+        return {message:'members doc created'}
+    }).catch((err)=>{
+        throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
+    });
+})
+
+
 exports.getCircleUID = functions.https.onCall(async(data,context)=>{
     let uid = context.auth.token.uid;
     let {phno} = data;
@@ -34,21 +51,21 @@ exports.getCircleUID = functions.https.onCall(async(data,context)=>{
     });
 })
 
-exports.getCircleUnacceptedUID = functions.https.onCall(async(data,context)=>{
-    let uid = context.auth.token.uid;
-    let {phno} = data;
-    let circle = [];
-    let num = 0;
-    return Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get().then((doc)=>{
-        if(doc.docs.length == 0 ){return {message:'found this',  length: 0};}
-        doc.docs.forEach((element)=>{
-            circle.push(element);
-        })
-        return {message:'found this', cid:circle[0].id, length: doc.docs.length};
-    }).catch((err)=>{
-        throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
-    });
-})
+// exports.getCircleUnacceptedUID = functions.https.onCall(async(data,context)=>{
+//     let uid = context.auth.token.uid;
+//     let {phno} = data;
+//     let circle = [];
+//     let num = 0;
+//     return Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get().then((doc)=>{
+//         if(doc.docs.length == 0 ){return {message:'found this',  length: 0};}
+//         doc.docs.forEach((element)=>{
+//             circle.push(element);
+//         })
+//         return {message:'found this', cid:circle[0].id, length: doc.docs.length};
+//     }).catch((err)=>{
+//         throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
+//     });
+// })
 
 exports.getCircle = functions.https.onCall(async(data,context)=>{
     let {circleID} = data;
@@ -76,56 +93,92 @@ exports.getCircleMembers = functions.https.onCall(async(data,context)=>{
     });
 })
 
-exports.inviteMembers = functions.https.onCall(async (data,context)=>{
+// exports.inviteMembers = functions.https.onCall(async (data,context)=>{
+//     try{
+//         let {circleID,members} = data;
+//         let m =[];
+//         await members.forEach(mem=>{
+//             m.push({memberNumber:mem,status:'Pending'})
+//         })
+//         await Circle.doc(circleID).update({
+//             members: admin.firestore.FieldValue.arrayUnion.apply(null,m),
+//             setUpComplete: true
+//         })
+//         return {message:'Members added',m}
+//     }catch(err){
+//         throw new functions.https.HttpsError('internal',err);
+//     }
+// })
+
+exports.inviteMembers = functions.https.onCall(async(data,context)=>{
     try{
-        let {circleID,members} = data;
-        let m =[];
-        await members.forEach(mem=>{
-            m.push({memberNumber:mem,status:'Pending'})
+        let {circleID,members,invitedOn} = data;
+        let m = [];
+        // await members.forEach(mem =>{
+        //     m.push({memberNumber:mem,status:'Pending'})
+        // });
+        await members.forEach(async(mem)=>{
+            await Circle.doc(circleID).collection('Members').doc(mem).create({
+                memberNumber:mem,
+                status:'Pending',
+                invitedOn:invitedOn
+            })
         })
-        await Circle.doc(circleID).update({
-            members: admin.firestore.FieldValue.arrayUnion.apply(null,m),
-            setUpComplete: true
-        })
-        return {message:'Members added',m}
+        return {message:'Added members'}
     }catch(err){
         throw new functions.https.HttpsError('internal',err);
     }
 })
 
-exports.checkIfMember = functions.https.onCall(async(data,context)=>{
-    let uid = context.auth.uid;
-    let circle = [];
-    let phno = data.ph;
-    return Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get().then(async (doc)=>{
-        if(doc.docs.length == 0 ){return {message:'found this',  length: 0};}
-        doc.docs.forEach((element)=>{
-            circle.push(element);
-        })
-        // await circle[0].update({
-        //     members: firebase.firestore.FieldValue.arrayRemove({memberID:uid,memberNumber: phno,status:'Pending'})
-        // });
-        return {message:'found this', cid:circle[0].id, length: doc.docs.length};
+exports.reinviteMember = functions.https.onCall(async(data,context)=>{
+    let {cid,invitedOn,ph} = data;
+    return Circle.doc(cid).collection('Members').doc(ph).update({
+        invitedOn:invitedOn
+    }).then((t)=>{
+        return {message:'Updated'}
     }).catch((err)=>{
-        throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
-    });
+        throw new functions.https.HttpsError('internal',err);
+    })
 })
 
-// exports.checkSetup = functions.https.onCall(async(data,context)=>{
-//     let uid = context.auth.token.uid;
-//     let {phno} = data;
+exports.addUnacceptedMember = functions.https.onCall(async(data,context)=>{
+    try{
+        let {phNos,cid} = data;
+        await phNos.forEach((p)=>{
+            Unaccepted.doc(p).create({
+                cid:cid  
+            })
+        })
+        return {message:'Members added to unaacepted list'}
+    }catch(err){
+        throw new functions.https.HttpsError('internal',err);
+    }
+})
+
+// exports.removeUnacceptedMember = functions.https.onCall(async(data,context)=>{
+//     let {phNo} = data;
+//     return Unaccepted.doc(phNo).delete.then((d)=>{
+//         return {message:'Removed from unaccepted list'}
+//     }).catch((err)=>{
+//         throw new functions.https.HttpsError('internal',err);
+//     })
+// })
+
+// exports.checkIfMember = functions.https.onCall(async(data,context)=>{
+//     let uid = context.auth.uid;
 //     let circle = [];
-//     let num = 0;
-//     return Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Accepted'}).get().then((doc)=>{
+//     let phno = data.ph;
+//     return Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get().then(async (doc)=>{
 //         if(doc.docs.length == 0 ){return {message:'found this',  length: 0};}
 //         doc.docs.forEach((element)=>{
 //             circle.push(element);
 //         })
-//         return {message:'found this', circle:circle[0].id,setUpComplete: circle[0]};
+//         return {message:'found this', cid:circle[0].id, length: doc.docs.length};
 //     }).catch((err)=>{
 //         throw new functions.https.HttpsError(`internal','Internal server error:${err}`);
 //     });
 // })
+
 exports.checkSetup = functions.https.onCall(async(data,context)=>{
     let uid = context.auth.token.uid;
     let circle = data.circle;
@@ -154,14 +207,14 @@ exports.changeMood = functions.https.onCall(async(data,context)=>{
     })
 })
 
-exports.getCurrentMood = functions.https.onCall(async(data,context)=>{
-    let cid = data.cid;
-    return Circle.doc(cid).collection('mood').get().then((doc)=>{
-        return {mood: doc.data()}
-    }).catch((err)=>{
-        throw new functions.https.HttpsError('internal',err)
-    })
-})
+// exports.getCurrentMood = functions.https.onCall(async(data,context)=>{
+//     let cid = data.cid;
+//     return Circle.doc(cid).collection('mood').get().then((doc)=>{
+//         return {mood: doc.data()}
+//     }).catch((err)=>{
+//         throw new functions.https.HttpsError('internal',err)
+//     })
+// })
 
 // exports.updateLovedOne = functions.https.onCall(async(data,context)=>{
 //     try{
@@ -191,25 +244,25 @@ exports.updateLovedOneStatus = functions.https.onCall(async(data,context)=>{
     })
 })
 
-exports.getCircleUIDFinal = functions.https.onCall(async(data,context)=>{
-    let uid = context.auth.token.uid;
-    let {phno} = data;
-    let circle = [];
-    let num = 0;
-    let c = await Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Accepted'}).get();
-    if(c._size == 0){
-        let c2 = await Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get();
-        if(c2._size == 0){
-            return {message:'new user'}
-        }
-        else{
-            return {c: c2}
-        }
-    }
-    else{
-        return {c: c}
-    }
-})
+// exports.getCircleUIDFinal = functions.https.onCall(async(data,context)=>{
+//     let uid = context.auth.token.uid;
+//     let {phno} = data;
+//     let circle = [];
+//     let num = 0;
+//     let c = await Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Accepted'}).get();
+//     if(c._size == 0){
+//         let c2 = await Circle.where('members','array-contains',{memberID:uid,memberNumber: phno,status:'Pending'}).get();
+//         if(c2._size == 0){
+//             return {message:'new user'}
+//         }
+//         else{
+//             return {c: c2}
+//         }
+//     }
+//     else{
+//         return {c: c}
+//     }
+// })
 
 exports.delCircle = functions.https.onCall(async(data,context)=>{
     let cid = data.cid;

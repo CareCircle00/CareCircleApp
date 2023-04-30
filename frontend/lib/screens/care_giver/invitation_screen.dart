@@ -19,11 +19,6 @@ void sending_SMS(String msg, List<String> list_receipents) async {
 
 List<dynamic> all_contacts = circle_screen.all_contacts;
 
-
-// Future<void> getUser(String num)async{
-//
-// }
-
 class Status extends StatelessWidget {
   const Status({Key? key}) : super(key: key);
 
@@ -49,7 +44,8 @@ class _StatusScreenState extends State<StatusScreen> {
     final width = MediaQuery.of(context).size.width;
     dynamic ret = circle_screen.CenterList.per;
     dynamic mem = circle_screen.CenterList.mem;
-    print(mem["timestamp"]);
+    print(mem['status']);
+    // print(mem["timestamp"]);
     // print(circle_screen.all_contacts);
 
     late Future<Uint8List?> _imageFuture;
@@ -176,7 +172,13 @@ class _StatusScreenState extends State<StatusScreen> {
           padding: EdgeInsets.fromLTRB(20*width/360, 0, 20*width/360, 0),
           child: ElevatedButton(
             onPressed: (){
-              sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', [mem["mapValue"]["fields"]["memberNumber"]["stringValue"]]);
+              sending_SMS('This application I told you about is very simple, just install it and I will set everything up for you', [mem["memberNumber"]]);
+              HttpsCallable resend = FirebaseFunctions.instance.httpsCallable('circle-reinviteMember');
+              resend.call(<String,dynamic>{
+                'cid':global.cid,
+                'invitedOn':DateTime.now().toString(),
+                'ph': mem['memberNumber'],
+              });
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(25,45,227,0.7 ),
@@ -189,17 +191,48 @@ class _StatusScreenState extends State<StatusScreen> {
             )
           ),
         ):const SizedBox(),
-        mem['timestamp']!=null? Center(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(0, 10*height/740, 0, 0),
-            child: Text(
-              'Accepted on ${mem['timestamp'].split(".").first}',
-              style: TextStyle(
-                fontSize: 18*width/360
+        mem['status']=='Accepted'?
+        Container(
+          padding: EdgeInsets.fromLTRB(0,20*height/740,0,20*height/740),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                width: 0.5,
+                color: Colors.grey,
               ),
+              top: BorderSide(
+                width: 0.5,
+                color: Colors.grey,
+              )
+            )
+          ),
+          margin: EdgeInsets.fromLTRB(35*width/360, 15*height/740, 35*width/360, 0),
+          child: Text(
+            'Accepted on ${mem['timestamp'].split(".").first}',
+            style: TextStyle(
+              fontSize: 18*width/360
             ),
           ),
-        ):const SizedBox()
+        )
+        :const SizedBox(),
+        Container(
+          padding: EdgeInsets.fromLTRB(0,20*height/740,0,20*height/740),
+          margin: EdgeInsets.fromLTRB(35*width/360, 0, 35*width/360, 0),
+          decoration: const BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                    width: 0.5,
+                    color: Colors.grey,
+                  )
+              )
+          ),
+          child: Text(
+            'Last invited on ${mem['invitedOn'].split(".").first}',
+            style: TextStyle(
+                fontSize: 18*width/360
+            ),
+          )
+        )
       ],
     );
   }

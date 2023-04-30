@@ -7,6 +7,7 @@ const Actions = db.collection("Actions");
 const Circle = db.collection("Circle");
 const Chat = db.collection('Chat');
 const Activity = db.collection('Activity');
+const Unaccepted = db.collection('Unaccepted');
 
 module.exports = {
     Roles,
@@ -15,4 +16,5 @@ module.exports = {
     Circle,
     Chat,
     Activity,
+    Unaccepted,
 }

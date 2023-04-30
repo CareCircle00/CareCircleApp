@@ -6,18 +6,16 @@ import 'package:flutter_svg/svg.dart';
 import '../../global.dart' as global;
 
 
-////////////////////////////////////////////////////////////////////////
-Future<String> getUserInfo()async{
-  String cid = '';
-  HttpsCallable getInfo = FirebaseFunctions.instance.httpsCallable('user-getUserInfo');
-  await getInfo.call(<String,dynamic>{
-  }).then((resp)=>{
-    cid = resp.data['circle']
-  });
-  return cid;
-}
-
-
+//////////////////////      API CALLS                   //////////////////////////////////////////////////
+// Future<String> getUserInfo()async{
+//   String cid = '';
+//   HttpsCallable getInfo = FirebaseFunctions.instance.httpsCallable('user-getUserInfo');
+//   await getInfo.call(<String,dynamic>{
+//   }).then((resp)=>{
+//     cid = resp.data['circle']
+//   });
+//   return cid;
+// }
 
 Future<void> updateLovedOneStatus(String cid)async{
   final user = FirebaseAuth.instance.currentUser!;
@@ -32,12 +30,13 @@ Future<void> updateLovedOneStatus(String cid)async{
 }
 
 Future<void> removeAcceptance(String cid)async{
+  print('rvallllll $cid');
   final user = FirebaseAuth.instance.currentUser!;
   final ph = user.phoneNumber!;
   HttpsCallable upAcc = FirebaseFunctions.instance.httpsCallable('user-removeUnacceptedMember');
   upAcc.call(<String,dynamic>{
     'cid':cid,
-    "phno":ph,
+    "phNo":ph,
   }).then((resp)=>{
     print(resp.data),
   });
@@ -100,12 +99,11 @@ Future<String> checkUnacceptedMember()async{
   final ph = user.phoneNumber;
   HttpsCallable ch = FirebaseFunctions.instance.httpsCallable('user-checkUnacceptedMember');
   await ch.call(<String,dynamic>{
-    'phno':ph
+    'phNo':ph
   }).then((rval)=>{
     print('here: ${rval.data}'),
-    if(rval.data['circle']!=null){
-      print(rval.data["circle"]),
-      cid = rval.data['circle'],
+    if(rval.data['member']!=null){
+      cid = rval.data['member']['cid'],
     }
   });
   return cid;
@@ -128,46 +126,45 @@ Future<bool> checkSet(String cid)async{
   });
   return rval;
 }
-//////////////////////////////////////////////////////////////////
 
-Future<String> getCirc()async{
-  final user = FirebaseAuth.instance.currentUser!;
-  final ph = user.phoneNumber;
-  String cid = "";
-  int l =0;
-  HttpsCallable getCirc = FirebaseFunctions.instance.httpsCallable('circle-getCircleUnacceptedUID');
-  getCirc.call(<String,dynamic>{
-    'phno':ph
-  }).then((resp)=>{
-    print(resp.data),
-    if(resp.data["cid"]!=null){
-      cid=resp.data["cid"],
-    }
-  });
-  return cid;
-}
+// Future<String> getCirc()async{
+//   final user = FirebaseAuth.instance.currentUser!;
+//   final ph = user.phoneNumber;
+//   String cid = "";
+//   int l =0;
+//   HttpsCallable getCirc = FirebaseFunctions.instance.httpsCallable('circle-getCircleUnacceptedUID');
+//   getCirc.call(<String,dynamic>{
+//     'phno':ph
+//   }).then((resp)=>{
+//     print(resp.data),
+//     if(resp.data["cid"]!=null){
+//       cid=resp.data["cid"],
+//     }
+//   });
+//   return cid;
+// }
 
 
-Future<bool> updateMember()async{
-  final user = FirebaseAuth.instance.currentUser!;
-  final uid = user.uid;
-  final phno = user.phoneNumber;
-  bool rval = false;
-  HttpsCallable ch = FirebaseFunctions.instance.httpsCallable('circle-checkIfMember');
-  await ch.call(<String,dynamic>{
-    'ph': phno
-  }).then((r)=>{
-    print('this:${r.data}'),
-    print('this:${r.data["length"]}'),
-    if(r.data["length"] == 1){
-      rval = true
-    }
-    else{
-      rval = false
-    }
-  });
-  return rval;
-}
+// Future<bool> updateMember()async{
+//   final user = FirebaseAuth.instance.currentUser!;
+//   final uid = user.uid;
+//   final phno = user.phoneNumber;
+//   bool rval = false;
+//   HttpsCallable ch = FirebaseFunctions.instance.httpsCallable('circle-checkIfMember');
+//   await ch.call(<String,dynamic>{
+//     'ph': phno
+//   }).then((r)=>{
+//     print('this:${r.data}'),
+//     print('this:${r.data["length"]}'),
+//     if(r.data["length"] == 1){
+//       rval = true
+//     }
+//     else{
+//       rval = false
+//     }
+//   });
+//   return rval;
+// }
 
 Future<bool> checkSetUp()async{
   bool rval= false;
@@ -193,6 +190,8 @@ Future<bool> checkSetUp()async{
   return rval;
 }
 
+
+////////////// API CALLS ////////////////
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -236,6 +235,7 @@ class _SplashState extends State<Splash> {
                 if(rval == ''){
                   updateRole('m4PbOt884WWZwcAeR9OA').then((rval)=>{
                     checkUnacceptedMember().then((rval)=>{  // check if the user is an unaccepted member of a circle
+                      print('rvallll $rval'),
                       if(rval==''){
                         Navigator.of(context).pushNamedAndRemoveUntil('/add_loved_one_screen', (Route<dynamic> route) => false),
                       }else{
@@ -271,6 +271,7 @@ class _SplashState extends State<Splash> {
                 if(rval == ''){
                   updateRole('m4PbOt884WWZwcAeR9OA').then((resp)=>{
                     checkUnacceptedMember().then((rval)=>{
+                      print('rvallll $rval'),
                       if(rval==''){
                         Navigator.of(context).pushNamedAndRemoveUntil('/add_loved_one_screen', (Route<dynamic> route) => false),
                       }else{

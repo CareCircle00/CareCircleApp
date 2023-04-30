@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 
 import './home_screen_loved_one.dart' as home_screen;
 import '../care_giver/circle_screen.dart' as circle_screen;
-import '../care_giver/coming_soon_screen.dart' as coming_soon_screen;
-import '../care_giver/chat_screen.dart' as chat_screen;
 import '../../global.dart' as global;
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,22 +13,29 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+List titles = [
+  'Home',
+  'My Circle'
+];
+
 class _HomeScreenState extends State<HomeScreen> {
   static int currentIndex = 0;
+  final flutterReactiveBle = FlutterReactiveBle();
+  void writeBT()async{
+    final characteristic = QualifiedCharacteristic(serviceId: Uuid.parse('75c276c3-8f97-20bc-a143-b354244886d4'), characteristicId: Uuid.parse('6acf4f08-cc9d-d495-6b41-aa7e60c4e8a6'), deviceId: 'FB:8B:B6:AC:D3:C4');
+    await flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: [0x03]);
+  }
   @override
   Widget build(BuildContext context) {
     const List<Widget> pages = [
       home_screen.LovedOneHomeScreen(),
-      // coming_soon_screen.ComingSoon(),
       circle_screen.AddLovedOne(),
-      // chat_screen.ChatScreen(),
-      // coming_soon_screen.ComingSoon(),
     ];
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-          title: Text('Care Circle')
+          title: Text(titles[_HomeScreenState.currentIndex])
       ),
       body: pages.elementAt(_HomeScreenState.currentIndex),
       drawer : Drawer(
@@ -88,6 +94,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.pop(context);
                   },
                 ),
+                // ListTile(
+                //   title: const Text('Vibrate'),
+                //   onTap: (){
+                //     writeBT();
+                //     setState(() {
+                //     });
+                //     Navigator.pop(context);
+                //   },
+                // ),
                 ListTile(
                   title: const Text('Delete Account',style: TextStyle(color: Colors.red),),
                   onTap: (){

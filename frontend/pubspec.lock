@@ -36,6 +36,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1"
+  circular_menu:
+    dependency: "direct main"
+    description:
+      name: circular_menu
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   circular_motion:
     dependency: "direct main"
     description:
@@ -106,6 +113,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3"
+  convert:
+    dependency: transitive
+    description:
+      name: convert
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.1"
   country_picker:
     dependency: "direct main"
     description:
@@ -211,11 +225,32 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.1+15"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   flutter:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_blue_plus:
+    dependency: "direct main"
+    description:
+      name: flutter_blue_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.0"
+  flutter_bluetooth_serial:
+    dependency: "direct main"
+    description:
+      name: flutter_bluetooth_serial
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   flutter_emoji:
     dependency: "direct main"
     description:
@@ -251,6 +286,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.7"
+  flutter_reactive_ble:
+    dependency: "direct main"
+    description:
+      name: flutter_reactive_ble
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.3"
   flutter_sms:
     dependency: "direct main"
     description:
@@ -275,6 +317,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  functional_data:
+    dependency: transitive
+    description:
+      name: functional_data
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   html:
     dependency: transitive
     description:
@@ -338,6 +387,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.5"
+  material_design_icons_flutter:
+    dependency: transitive
+    description:
+      name: material_design_icons_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.6996"
   meta:
     dependency: transitive
     description:
@@ -352,6 +408,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  page_transition:
+    dependency: "direct main"
+    description:
+      name: page_transition
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.9"
   path:
     dependency: transitive
     description:
@@ -464,6 +527,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
   quiver:
     dependency: transitive
     description:
@@ -471,6 +541,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.0"
+  reactive_ble_mobile:
+    dependency: transitive
+    description:
+      name: reactive_ble_mobile
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.3"
+  reactive_ble_platform_interface:
+    dependency: transitive
+    description:
+      name: reactive_ble_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.3"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.27.7"
   scrollable_positioned_list:
     dependency: transitive
     description:
@@ -504,6 +595,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  string_2_icon:
+    dependency: "direct main"
+    description:
+      name: string_2_icon
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   string_scanner:
     dependency: transitive
     description:

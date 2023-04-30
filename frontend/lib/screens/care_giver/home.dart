@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 
 import './home_screen.dart' as home_screen;
 import './circle_screen.dart' as circle_screen;
-import './coming_soon_screen.dart' as coming_soon_screen;
-import './chat_screen.dart' as chat_screen;
 import '../../global.dart' as global;
 
 
@@ -16,15 +14,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 
-Future<String> getUserInfo()async{
-  String cid = '';
-  HttpsCallable getInfo = FirebaseFunctions.instance.httpsCallable('user-getUserInfo');
-  await getInfo.call(<String,dynamic>{
-  }).then((resp)=>{
-    cid = resp.data['circle']
-  });
-  return cid;
-}
+// Future<String> getUserInfo()async{
+//   String cid = '';
+//   HttpsCallable getInfo = FirebaseFunctions.instance.httpsCallable('user-getUserInfo');
+//   await getInfo.call(<String,dynamic>{
+//   }).then((resp)=>{
+//     cid = resp.data['circle']
+//   });
+//   return cid;
+// }
 
 
 
@@ -37,10 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final width = MediaQuery.of(context).size.width;
     const List<Widget> pages = [
       home_screen.Home(),
-      // coming_soon_screen.ComingSoon(),
       circle_screen.AddLovedOne(),
-      // chat_screen.ChatScreen(),
-      // coming_soon_screen.ComingSoon(),
     ];
 
     List titles = [
